@@ -4,6 +4,7 @@ import com.rebank.demo.account.Account;
 import com.rebank.demo.account.AccountRepository;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +26,11 @@ public class AuthController {
     @GetMapping("/register")
     public String register() {
         return "register";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @PostMapping("/register")
@@ -52,6 +58,42 @@ public class AuthController {
                 passwordEncoder.encode(password)));
         session.setAttribute("accountId", account.getId());
         return "redirect:/";
+    }
+
+    @PostMapping("/login")
+    public String login(
+            @RequestParam String usernameOrEmail,
+            @RequestParam String password,
+            HttpSession session,
+            Model model) {
+        model.addAttribute("usernameOrEmail", usernameOrEmail);
+
+        if (isBlank(usernameOrEmail) || isBlank(password)) {
+            model.addAttribute("error", "Username/email and password are required.");
+            return "login";
+        }
+
+        Optional<Account> account = findAccount(usernameOrEmail.trim());
+        if (account.isEmpty() || !passwordEncoder.matches(password, account.get().getPasswordHash())) {
+            model.addAttribute("error", "Invalid username/email or password.");
+            return "login";
+        }
+
+        session.setAttribute("accountId", account.get().getId());
+        return "redirect:/";
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+
+    private Optional<Account> findAccount(String usernameOrEmail) {
+        if (usernameOrEmail.contains("@")) {
+            return accounts.findByEmailIgnoreCase(usernameOrEmail);
+        }
+        return accounts.findByUsernameIgnoreCase(usernameOrEmail);
     }
 
     private String registrationError(String username, String email, String password, String confirmPassword) {

@@ -23,6 +23,9 @@
                     <dd th:text="${account.email}">email@example.com</dd>
                 </div>
             </dl>
+            <form th:action="@{/logout}" method="post" class="logout">
+                <button type="submit">Logout</button>
+            </form>
         </div>
 
         <div th:unless="${account != null}" class="actions">

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - ReBank</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<main class="page">
+    <section class="panel">
+        <h1>Login</h1>
+        <p th:if="${error}" class="error" th:text="${error}">Error</p>
+
+        <form th:action="@{/login}" method="post">
+            <label>
+                Username or email
+                <input name="usernameOrEmail" type="text" autocomplete="username" th:value="${usernameOrEmail}" required>
+            </label>
+            <label>
+                Password
+                <input name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="switch">No account yet? <a th:href="@{/register}">Sign up</a></p>
+    </section>
+</main>
+</body>
+</html>
