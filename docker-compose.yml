@@ -20,9 +20,6 @@ services:
     labels:
       caddy: rebank.oleksandr-vinichenko.xyz
       caddy.reverse_proxy: "{{upstreams 8080}}"
-      caddy.reverse_proxy.health_uri: /actuator/health
-      caddy.reverse_proxy.health_interval: 10s
-      caddy.reverse_proxy.health_timeout: 3s
 
 networks:
   shared-network:
