@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ReBank</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<main class="page">
+    <section class="panel">
+        <h1>ReBank</h1>
+
+        <div th:if="${account != null}" class="account">
+            <h2>Account info</h2>
+            <dl>
+                <div>
+                    <dt>Username</dt>
+                    <dd th:text="${account.username}">username</dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd th:text="${account.email}">email@example.com</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div th:unless="${account != null}" class="actions">
+            <a class="button" th:href="@{/login}">Login</a>
+            <a class="button secondary" th:href="@{/register}">Sign up</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>
