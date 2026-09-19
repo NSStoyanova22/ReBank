@@ -1,0 +1,29 @@
+services:
+  app:
+    image: ghcr.io/NSStoyanova22/ReBank:latest
+    container_name: rebank-app
+    restart: always
+    env_file: .env
+    networks:
+      - shared-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/actuator/health || wget -q --spider http://127.0.0.1:8080/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    labels:
+      caddy: rebank.oleksandr-vinichenko.xyz
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.reverse_proxy.health_uri: /actuator/health
+      caddy.reverse_proxy.health_interval: 10s
+      caddy.reverse_proxy.health_timeout: 3s
+
+networks:
+  shared-network:
+    external: true
