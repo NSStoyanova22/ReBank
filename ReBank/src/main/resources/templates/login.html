@@ -4,15 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - ReBank</title>
-    <link rel="stylesheet" th:href="@{/styles.css}">
+    <link rel="stylesheet" th:href="@{/styles.css?v=2}">
 </head>
 <body>
-<main class="page">
-    <section class="panel">
-        <h1>Login</h1>
-        <p th:if="${error}" class="error" th:text="${error}">Error</p>
+<main class="page auth-page">
+    <section class="auth-shell" aria-label="Login to ReBank">
+        <aside class="auth-visual">
+            <a class="brand brand-light" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
+            <div class="visual-copy">
+                <p class="visual-kicker">YOUR MONEY, IN MOTION</p>
+                <h2>Make every<br>move count.</h2>
+                <p>Simple tools and a clearer view of your money, wherever life takes you.</p>
+            </div>
+            <div class="visual-stat"><span class="stat-dot"></span><span>Built for your next move</span></div>
+        </aside>
+        <section class="panel auth-panel">
+            <div class="mobile-brand"><a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a></div>
+            <p class="eyebrow">WELCOME BACK</p>
+            <h1>Sign in to ReBank</h1>
+            <p class="intro">Enter your details to access your account.</p>
+            <p th:if="${error}" class="error" role="alert" th:text="${error}">Error</p>
 
-        <form th:action="@{/login}" method="post">
+            <form th:action="@{/login}" method="post">
             <label>
                 Username or email
                 <input name="usernameOrEmail" type="text" autocomplete="username" th:value="${usernameOrEmail}" required>
@@ -21,11 +34,13 @@
                 Password
                 <input name="password" type="password" autocomplete="current-password" required>
             </label>
-            <button type="submit">Login</button>
-        </form>
+            <button type="submit">Login <span aria-hidden="true">→</span></button>
+            </form>
 
-        <p class="switch">No account yet? <a th:href="@{/register}">Sign up</a></p>
+            <p class="switch">New to ReBank? <a th:href="@{/register}">Create an account</a></p>
+        </section>
     </section>
+    <p class="auth-footer">Secure, simple banking for what matters next.</p>
 </main>
 </body>
 </html>
