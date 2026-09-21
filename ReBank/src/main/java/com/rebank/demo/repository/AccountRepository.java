@@ -1,5 +1,6 @@
-package com.rebank.demo.account;
+package com.rebank.demo.repository;
 
+import com.rebank.demo.model.Account;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,7 +1,7 @@
-package com.rebank.demo.web;
+package com.rebank.demo.controller;
 
-import com.rebank.demo.account.Account;
-import com.rebank.demo.account.AccountRepository;
+import com.rebank.demo.model.Account;
+import com.rebank.demo.repository.AccountRepository;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.Optional;

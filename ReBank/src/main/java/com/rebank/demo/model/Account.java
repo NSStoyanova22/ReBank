@@ -1,4 +1,4 @@
-package com.rebank.demo.account;
+package com.rebank.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
