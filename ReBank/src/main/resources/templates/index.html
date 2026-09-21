@@ -3,34 +3,47 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ReBank</title>
-    <link rel="stylesheet" th:href="@{/styles.css}">
+    <title>Dashboard - ReBank</title>
+    <link rel="stylesheet" th:href="@{/styles.css?v=2}">
 </head>
 <body>
-<main class="page">
-    <section class="panel">
-        <h1>ReBank</h1>
+<main class="page dashboard-page">
+    <div th:if="${account != null}" class="dashboard-shell">
+        <header class="dashboard-header">
+            <a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
+            <button class="menu-button" type="button" aria-label="Open navigation menu">
+                <span></span><span></span><span></span>
+            </button>
+        </header>
 
-        <div th:if="${account != null}" class="account">
-            <h2>Account info</h2>
-            <dl>
-                <div>
-                    <dt>Username</dt>
-                    <dd th:text="${account.username}">username</dd>
-                </div>
-                <div>
-                    <dt>Email</dt>
-                    <dd th:text="${account.email}">email@example.com</dd>
-                </div>
-            </dl>
-            <form th:action="@{/logout}" method="post" class="logout">
-                <button type="submit">Logout</button>
-            </form>
-        </div>
+        <section class="dashboard-intro" aria-labelledby="dashboard-title">
+            <p class="eyebrow">YOUR DASHBOARD</p>
+            <h1 id="dashboard-title">Welcome back, <span th:text="${account.username}">username</span></h1>
+            <p>Here’s your financial snapshot.</p>
+        </section>
 
-        <div th:unless="${account != null}" class="actions">
+        <section class="balance-card" aria-label="Account balance">
+            <div class="balance-card-top">
+                <p>AVAILABLE BALANCE</p>
+                <span class="balance-icon" aria-hidden="true">€</span>
+            </div>
+            <strong>€0.00</strong>
+            <p class="balance-note">Your current balance</p>
+        </section>
+
+        <form th:action="@{/logout}" method="post" class="dashboard-logout">
+            <button type="submit">Log out</button>
+        </form>
+    </div>
+
+    <section th:unless="${account != null}" class="panel guest-panel">
+        <a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
+        <p class="eyebrow">WELCOME TO REBANK</p>
+        <h1>Your money, made simple.</h1>
+        <p class="intro">Sign in to view your dashboard or create an account to get started.</p>
+        <div class="actions">
             <a class="button" th:href="@{/login}">Login</a>
-            <a class="button secondary" th:href="@{/register}">Sign up</a>
+            <a class="button secondary" th:href="@{/register}">Create an account</a>
         </div>
     </section>
 </main>
