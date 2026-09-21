@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.rebank.demo.account.Account;
-import com.rebank.demo.account.AccountRepository;
+import com.rebank.demo.model.Account;
+import com.rebank.demo.repository.AccountRepository;
 import jakarta.servlet.http.HttpSession;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
