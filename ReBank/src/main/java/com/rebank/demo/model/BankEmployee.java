@@ -30,6 +30,9 @@ public class BankEmployee {
     @Column(nullable = false, length = 80)
     private String role;
 
+    @Column(length = 100)
+    private String passwordHash;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -40,6 +43,13 @@ public class BankEmployee {
         this.bank = bank;
         this.name = name;
         this.role = role;
+    }
+
+    public BankEmployee(Bank bank, String name, String role, String passwordHash) {
+        this.bank = bank;
+        this.name = name;
+        this.role = role;
+        this.passwordHash = passwordHash;
     }
 
     @PrePersist
@@ -63,6 +73,10 @@ public class BankEmployee {
 
     public String getRole() {
         return role;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public Instant getCreatedAt() {

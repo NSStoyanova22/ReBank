@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Employee access - ReBank</title>
+    <link rel="stylesheet" th:href="@{/styles.css?v=2}">
+</head>
+<body>
+<main class="page employee-page">
+    <section class="panel employee-login-panel">
+        <a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
+        <p class="eyebrow">STAFF ACCESS</p>
+        <h1>Employee sign in</h1>
+        <p class="intro">Use your employee credentials to manage account activity.</p>
+        <p th:if="${error}" class="error" th:text="${error}"></p>
+        <form th:action="@{/employee-login}" method="post">
+            <label for="employee-id">Employee ID</label>
+            <input id="employee-id" name="employeeId" type="number" min="1" required autofocus>
+            <label for="employee-password">Password</label>
+            <input id="employee-password" name="password" type="password" autocomplete="current-password" required>
+            <button type="submit">Open employee console</button>
+        </form>
+        <a class="switch" th:href="@{/login}">Return to customer login</a>
+    </section>
+</main>
+</body>
+</html>

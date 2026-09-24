@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Employee console - ReBank</title>
+    <link rel="stylesheet" th:href="@{/styles.css?v=2}">
+</head>
+<body>
+<main class="page employee-page">
+    <div class="employee-shell">
+        <header class="employee-header">
+            <div>
+                <a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
+                <p class="eyebrow">STAFF CONSOLE</p>
+            </div>
+            <form th:action="@{/employee/logout}" method="post">
+                <button class="employee-logout" type="submit">Sign out</button>
+            </form>
+        </header>
+
+        <section class="employee-intro">
+            <p class="eyebrow">TRANSACTION CONTROL</p>
+            <h1>Account activity</h1>
+            <p>Review and remove ledger entries when a correction is required.</p>
+        </section>
+
+        <p th:if="${error}" class="error" th:text="${error}"></p>
+
+        <section class="transaction-console" aria-labelledby="transaction-list-title">
+            <div class="console-heading">
+                <div>
+                    <p class="eyebrow">LEDGER</p>
+                    <h2 id="transaction-list-title">All transactions</h2>
+                </div>
+                <span class="employee-badge" th:text="${employee.name}">Employee</span>
+            </div>
+
+            <p th:if="${#lists.isEmpty(transactions)}" class="transaction-empty">No transactions found.</p>
+            <div th:unless="${#lists.isEmpty(transactions)}" class="employee-transaction-list">
+                <article class="employee-transaction" th:each="transaction : ${transactions}">
+                    <div class="employee-transaction-main">
+                        <div class="transaction-type" th:text="${transaction.type}">TRANSFER</div>
+                        <h3 th:text="${transaction.description}">Description</h3>
+                        <p>
+                            <span th:text="${transaction.bankAccount.client.displayName}">Client</span>
+                            <span aria-hidden="true"> · </span>
+                            <span th:text="${transaction.bankAccount.accountNumber}">Account</span>
+                        </p>
+                    </div>
+                    <div class="employee-transaction-side">
+                        <strong th:classappend="${transaction.direction.name() == 'CREDIT'} ? ' transaction-credit' : ' transaction-debit'"
+                                th:text="${(transaction.direction.name() == 'CREDIT' ? '+' : '-') + '€' + #numbers.formatDecimal(transaction.amount, 1, 2)}">+€0.00</strong>
+                        <span th:text="'Balance €' + ${#numbers.formatDecimal(transaction.balanceAfter, 1, 2)}">Balance €0.00</span>
+                        <time th:text="${#temporals.format(transaction.createdAt, 'MMM d, yyyy HH:mm')}">Date</time>
+                        <form th:action="@{'/employee/transactions/' + ${transaction.id} + '/delete'}" method="post">
+                            <button class="remove-transaction" type="submit">Remove</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

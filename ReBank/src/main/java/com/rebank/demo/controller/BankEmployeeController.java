@@ -25,9 +25,10 @@ public class BankEmployeeController {
     public ResponseEntity<String> createEmployee(
             @RequestParam Long bankId,
             @RequestParam String name,
-            @RequestParam String role) {
+            @RequestParam String role,
+            @RequestParam String password) {
         try {
-            BankEmployee employee = bankEmployeeService.createEmployee(bankId, name, role);
+            BankEmployee employee = bankEmployeeService.createEmployee(bankId, name, role, password);
             return ResponseEntity.ok("Employee created with ID: " + employee.getId());
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
