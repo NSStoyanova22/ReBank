@@ -763,37 +763,7 @@ dd {
 }
 
 .send-money-page h1 {
-    margin: 10px 0 8px;
-}
-
-.send-money-intro {
-    margin: 0 0 28px;
-    color: #65716d;
-}
-
-.transfer-form {
-    width: min(100%, 440px);
-    gap: 8px;
-}
-
-.transfer-form input {
-    min-height: 44px;
-    margin-bottom: 8px;
-}
-
-.transfer-form button {
-    margin-top: 10px;
-}
-
-.transfer-message {
-    min-height: 18px;
-    margin: 4px 0 0;
-    color: #8a1f1f;
-    font-size: 13px;
-}
-
-.success-message {
-    color: #1f6f5b;
+    margin: 0;
 }
 
 @media (max-width: 600px) {

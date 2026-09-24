@@ -17,11 +17,11 @@
                 </button>
                 <nav id="main-menu" class="menu-panel" aria-label="Main navigation" hidden>
                     <p class="menu-heading">ReBank menu</p>
-                    <a class="menu-link" href="/">
+                    <a class="menu-link" th:href="@{/}">
                         <span class="menu-link-icon" aria-hidden="true">⌂</span>
                         <span>Dashboard</span>
                     </a>
-                    <a class="menu-link active" href="/send-money">
+                    <a class="menu-link active" th:href="@{/send-money}">
                         <span class="menu-link-icon" aria-hidden="true">↗</span>
                         <span>Send money</span>
                     </a>
@@ -36,20 +36,7 @@
         </header>
 
         <section class="send-money-page" aria-labelledby="send-money-title">
-            <p class="eyebrow">TRANSFER MONEY</p>
             <h1 id="send-money-title">Send money</h1>
-            <p class="send-money-intro">Send money to another ReBank user.</p>
-
-            <form id="transfer-form" class="transfer-form">
-                <label for="recipient-username">Recipient username</label>
-                <input id="recipient-username" name="recipientUsername" type="text" required>
-
-                <label for="transfer-amount">Amount</label>
-                <input id="transfer-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
-
-                <p id="transfer-message" class="transfer-message" aria-live="polite"></p>
-                <button type="submit">Send money</button>
-            </form>
         </section>
     </div>
 </main>
@@ -78,28 +65,6 @@
         }
     });
 
-    const transferForm = document.querySelector('#transfer-form');
-    const transferMessage = document.querySelector('#transfer-message');
-
-    transferForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        transferMessage.className = 'transfer-message';
-        transferMessage.textContent = 'Sending money…';
-
-        const response = await fetch('/transfer', {
-            method: 'POST',
-            body: new FormData(transferForm)
-        });
-
-        if (response.ok) {
-            transferMessage.classList.add('success-message');
-            transferMessage.textContent = 'Money sent successfully.';
-            transferForm.reset();
-            return;
-        }
-
-        transferMessage.textContent = await response.text();
-    });
 </script>
 </body>
 </html>
