@@ -22,14 +22,21 @@
             <p>Here’s your financial snapshot.</p>
         </section>
 
-        <section class="balance-card" aria-label="Account balance">
-            <div class="balance-card-top">
-                <p>AVAILABLE BALANCE</p>
-                <span class="balance-icon" aria-hidden="true">€</span>
+        <div class="balance-card-content">
+            <section class="balance-card" aria-label="Account balance">
+                <div class="balance-card-top">
+                    <p>AVAILABLE BALANCE</p>
+                    <span class="balance-icon" aria-hidden="true">€</span>
+                </div>
+                <strong th:text="'€' + ${#numbers.formatDecimal(balance, 1, 2)}">€0.00</strong>
+                <p class="balance-note">Your current balance</p>
+            </section>
+
+            <div class="balance-actions">
+                <button class="money-trigger" type="button" data-action="/deposit" data-title="Add money" data-label="Amount to add">Add money</button>
+                <button class="money-trigger remove-money-trigger" type="button" data-action="/withdraw" data-title="Remove money" data-label="Amount to remove">Remove money</button>
             </div>
-            <strong>€0.00</strong>
-            <p class="balance-note">Your current balance</p>
-        </section>
+        </div>
 
         <form th:action="@{/logout}" method="post" class="dashboard-logout">
             <button type="submit">Log out</button>
@@ -47,5 +54,62 @@
         </div>
     </section>
 </main>
+<dialog id="money-dialog" class="money-dialog" aria-labelledby="money-dialog-title">
+    <form id="money-dialog-form" class="money-dialog-card">
+        <button class="dialog-close" type="button" aria-label="Close dialog">×</button>
+        <h2 id="money-dialog-title">Add money</h2>
+        <label id="money-dialog-label" for="money-dialog-amount">Amount</label>
+        <input id="money-dialog-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+        <input th:if="${bankAccount != null}" type="hidden" name="bankAccountId" th:value="${bankAccount.id}">
+        <p class="money-message" aria-live="polite"></p>
+        <button class="dialog-done" type="submit">Done</button>
+    </form>
+</dialog>
+<script>
+    const moneyDialog = document.querySelector('#money-dialog');
+    const moneyDialogForm = document.querySelector('#money-dialog-form');
+    const moneyDialogTitle = document.querySelector('#money-dialog-title');
+    const moneyDialogLabel = document.querySelector('#money-dialog-label');
+    const moneyDialogAmount = document.querySelector('#money-dialog-amount');
+    const moneyMessage = moneyDialog.querySelector('.money-message');
+    let moneyAction = '/deposit';
+
+    document.querySelectorAll('.money-trigger').forEach((trigger) => {
+        trigger.addEventListener('click', () => {
+            moneyAction = trigger.dataset.action;
+            moneyDialogTitle.textContent = trigger.dataset.title;
+            moneyDialogLabel.textContent = trigger.dataset.label;
+            moneyDialogAmount.value = '';
+            moneyMessage.textContent = '';
+            moneyDialog.showModal();
+            moneyDialogAmount.focus();
+        });
+    });
+
+    document.querySelector('.dialog-close').addEventListener('click', () => moneyDialog.close());
+
+    moneyDialog.addEventListener('click', (event) => {
+        if (event.target === moneyDialog) {
+            moneyDialog.close();
+        }
+    });
+
+    moneyDialogForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            moneyMessage.textContent = 'Updating balance…';
+
+            const response = await fetch(moneyAction, {
+                method: 'POST',
+                body: new FormData(moneyDialogForm)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+                return;
+            }
+
+            moneyMessage.textContent = await response.text();
+        });
+</script>
 </body>
 </html>
