@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Send Money - ReBank</title>
+    <link rel="stylesheet" th:href="@{/styles.css?v=2}">
+</head>
+<body>
+<main class="page dashboard-page">
+    <div class="dashboard-shell">
+        <header class="dashboard-header">
+            <a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
+            <div class="menu-wrap">
+                <button class="menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="main-menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <nav id="main-menu" class="menu-panel" aria-label="Main navigation" hidden>
+                    <p class="menu-heading">ReBank menu</p>
+                    <a class="menu-link" href="/">
+                        <span class="menu-link-icon" aria-hidden="true">⌂</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="menu-link active" href="/send-money">
+                        <span class="menu-link-icon" aria-hidden="true">↗</span>
+                        <span>Send money</span>
+                    </a>
+                    <form th:action="@{/logout}" method="post">
+                        <button class="menu-link logout-link" type="submit">
+                            <span class="menu-link-icon" aria-hidden="true">↪</span>
+                            <span>Log out</span>
+                        </button>
+                    </form>
+                </nav>
+            </div>
+        </header>
+
+        <section class="send-money-page" aria-labelledby="send-money-title">
+            <p class="eyebrow">TRANSFER MONEY</p>
+            <h1 id="send-money-title">Send money</h1>
+            <p class="send-money-intro">Send money to another ReBank user.</p>
+
+            <form id="transfer-form" class="transfer-form">
+                <label for="recipient-username">Recipient username</label>
+                <input id="recipient-username" name="recipientUsername" type="text" required>
+
+                <label for="transfer-amount">Amount</label>
+                <input id="transfer-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+
+                <p id="transfer-message" class="transfer-message" aria-live="polite"></p>
+                <button type="submit">Send money</button>
+            </form>
+        </section>
+    </div>
+</main>
+<script>
+    const menuButton = document.querySelector('.menu-button');
+    const menuPanel = document.querySelector('#main-menu');
+
+    menuButton.addEventListener('click', () => {
+        const isOpen = !menuPanel.hasAttribute('hidden');
+        menuPanel.toggleAttribute('hidden', isOpen);
+        menuButton.setAttribute('aria-expanded', String(!isOpen));
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!menuPanel.hasAttribute('hidden') && !event.target.closest('.menu-wrap')) {
+            menuPanel.setAttribute('hidden', '');
+            menuButton.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !menuPanel.hasAttribute('hidden')) {
+            menuPanel.setAttribute('hidden', '');
+            menuButton.setAttribute('aria-expanded', 'false');
+            menuButton.focus();
+        }
+    });
+
+    const transferForm = document.querySelector('#transfer-form');
+    const transferMessage = document.querySelector('#transfer-message');
+
+    transferForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        transferMessage.className = 'transfer-message';
+        transferMessage.textContent = 'Sending money…';
+
+        const response = await fetch('/transfer', {
+            method: 'POST',
+            body: new FormData(transferForm)
+        });
+
+        if (response.ok) {
+            transferMessage.classList.add('success-message');
+            transferMessage.textContent = 'Money sent successfully.';
+            transferForm.reset();
+            return;
+        }
+
+        transferMessage.textContent = await response.text();
+    });
+</script>
+</body>
+</html>

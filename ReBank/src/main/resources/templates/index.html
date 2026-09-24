@@ -11,9 +11,28 @@
     <div th:if="${account != null}" class="dashboard-shell">
         <header class="dashboard-header">
             <a class="brand" th:href="@{/}" aria-label="ReBank home"><span class="brand-mark">R</span>Re<span>Bank</span></a>
-            <button class="menu-button" type="button" aria-label="Open navigation menu">
-                <span></span><span></span><span></span>
-            </button>
+            <div class="menu-wrap">
+                <button class="menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="main-menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <nav id="main-menu" class="menu-panel" aria-label="Main navigation" hidden>
+                    <p class="menu-heading">ReBank menu</p>
+                    <a class="menu-link active" href="/">
+                        <span class="menu-link-icon" aria-hidden="true">⌂</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="menu-link" href="/send-money">
+                        <span class="menu-link-icon" aria-hidden="true">↗</span>
+                        <span>Send money</span>
+                    </a>
+                    <form th:action="@{/logout}" method="post">
+                        <button class="menu-link logout-link" type="submit">
+                            <span class="menu-link-icon" aria-hidden="true">↪</span>
+                            <span>Log out</span>
+                        </button>
+                    </form>
+                </nav>
+            </div>
         </header>
 
         <section class="dashboard-intro" aria-labelledby="dashboard-title">
@@ -110,6 +129,30 @@
 
             moneyMessage.textContent = await response.text();
         });
+
+    const menuButton = document.querySelector('.menu-button');
+    const menuPanel = document.querySelector('#main-menu');
+
+    menuButton.addEventListener('click', () => {
+        const isOpen = !menuPanel.hasAttribute('hidden');
+        menuPanel.toggleAttribute('hidden', isOpen);
+        menuButton.setAttribute('aria-expanded', String(!isOpen));
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!menuPanel.hasAttribute('hidden') && !event.target.closest('.menu-wrap')) {
+            menuPanel.setAttribute('hidden', '');
+            menuButton.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !menuPanel.hasAttribute('hidden')) {
+            menuPanel.setAttribute('hidden', '');
+            menuButton.setAttribute('aria-expanded', 'false');
+            menuButton.focus();
+        }
+    });
 </script>
 </body>
 </html>

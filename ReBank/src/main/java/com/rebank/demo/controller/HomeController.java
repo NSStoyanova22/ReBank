@@ -35,4 +35,15 @@ public class HomeController {
         }
         return "index";
     }
+
+    @GetMapping("/send-money")
+    public String sendMoney(HttpSession session, Model model) {
+        Long accountId = (Long) session.getAttribute("accountId");
+        if (accountId == null) {
+            return "redirect:/login";
+        }
+
+        accounts.findById(accountId).ifPresent(account -> model.addAttribute("account", account));
+        return "send-money";
+    }
 }

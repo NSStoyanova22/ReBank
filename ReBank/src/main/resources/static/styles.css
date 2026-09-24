@@ -380,6 +380,10 @@ dd {
     margin: 0;
 }
 
+.menu-wrap {
+    position: relative;
+}
+
 .menu-button {
     display: grid;
     width: 44px;
@@ -407,6 +411,95 @@ dd {
     height: 2px;
     border-radius: 2px;
     background: #1f6f5b;
+}
+
+.menu-panel {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 10px);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    width: 218px;
+    min-height: 185px;
+    padding: 10px;
+    border: 1px solid #d5e2dc;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 18px 38px rgba(23, 56, 47, 0.17);
+}
+
+.menu-panel[hidden] {
+    display: none;
+}
+
+.menu-heading {
+    margin: 4px 10px 8px;
+    color: #8a9892;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.menu-link {
+    display: block;
+    width: 100%;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #34403d;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.menu-link-icon {
+    display: inline-grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    border-radius: 7px;
+    background: #eef7f2;
+    color: #1f6f5b;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.menu-link:hover,
+.menu-link.active {
+    background: #eef7f2;
+    color: #1f6f5b;
+}
+
+.menu-panel form {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid #e2e9e6;
+}
+
+.menu-link.logout-link {
+    color: #65716d;
+}
+
+.menu-link.logout-link:hover {
+    background: #fff2f0;
+    color: #a33b31;
+}
+
+.menu-link.logout-link .menu-link-icon {
+    background: #fff2f0;
+    color: #a33b31;
 }
 
 .dashboard-intro {
@@ -654,6 +747,53 @@ dd {
 
 .guest-panel .intro {
     margin-bottom: 27px;
+}
+
+.send-money-page {
+    width: min(100%, 560px);
+    padding: 56px 0 30px;
+}
+
+.send-money-page .eyebrow {
+    margin: 0;
+    color: #1f6f5b;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.35px;
+}
+
+.send-money-page h1 {
+    margin: 10px 0 8px;
+}
+
+.send-money-intro {
+    margin: 0 0 28px;
+    color: #65716d;
+}
+
+.transfer-form {
+    width: min(100%, 440px);
+    gap: 8px;
+}
+
+.transfer-form input {
+    min-height: 44px;
+    margin-bottom: 8px;
+}
+
+.transfer-form button {
+    margin-top: 10px;
+}
+
+.transfer-message {
+    min-height: 18px;
+    margin: 4px 0 0;
+    color: #8a1f1f;
+    font-size: 13px;
+}
+
+.success-message {
+    color: #1f6f5b;
 }
 
 @media (max-width: 600px) {
