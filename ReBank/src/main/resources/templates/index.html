@@ -57,6 +57,13 @@
             </div>
         </div>
 
+        <details id="history-dropdown" class="transaction-dropdown">
+            <summary><span class="history-summary-icon" aria-hidden="true">↗</span><span>Transaction history</span><span class="history-summary-arrow" aria-hidden="true">⌄</span></summary>
+            <div id="history-content" class="transaction-list" aria-live="polite">
+                <p class="transaction-empty">Open to load transaction history.</p>
+            </div>
+        </details>
+
         <form th:action="@{/logout}" method="post" class="dashboard-logout">
             <button type="submit">Log out</button>
         </form>
@@ -129,6 +136,67 @@
 
             moneyMessage.textContent = await response.text();
         });
+
+    const historyDropdown = document.querySelector('#history-dropdown');
+    const historyContent = document.querySelector('#history-content');
+
+    historyDropdown.addEventListener('toggle', async () => {
+        if (!historyDropdown.open) {
+            return;
+        }
+
+        historyContent.textContent = 'Loading transaction history...';
+
+        try {
+            const response = await fetch('/transactions');
+            const history = await response.text();
+            historyContent.replaceChildren();
+
+            if (!response.ok || history === 'No transactions yet.') {
+                const emptyMessage = document.createElement('p');
+                emptyMessage.className = 'transaction-empty';
+                emptyMessage.textContent = history;
+                historyContent.append(emptyMessage);
+                return;
+            }
+
+            history.trim().split('\n').filter(Boolean).forEach((entry) => {
+                const parts = entry.split(' | ');
+                const timestamp = parts[0];
+                const type = parts[1] || 'TRANSACTION';
+                const description = parts[2] || 'Account activity';
+                const amount = parts[3] || '';
+                const balance = parts[4] || '';
+                const item = document.createElement('article');
+                item.className = `transaction-item ${amount.startsWith('+') ? 'credit' : 'debit'}`;
+
+                const details = document.createElement('div');
+                details.className = 'transaction-details';
+                const title = document.createElement('strong');
+                title.textContent = description;
+                const meta = document.createElement('span');
+                meta.textContent = `${type} · ${new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+                details.append(title, meta);
+
+                const values = document.createElement('div');
+                values.className = 'transaction-values';
+                const amountValue = document.createElement('strong');
+                amountValue.textContent = amount;
+                const balanceValue = document.createElement('span');
+                balanceValue.textContent = balance;
+                values.append(amountValue, balanceValue);
+
+                item.append(details, values);
+                historyContent.append(item);
+            });
+        } catch (error) {
+            historyContent.replaceChildren();
+            const errorMessage = document.createElement('p');
+            errorMessage.className = 'transaction-empty';
+            errorMessage.textContent = 'Unable to load transaction history. Please try again.';
+            historyContent.append(errorMessage);
+        }
+    });
 
     const menuButton = document.querySelector('.menu-button');
     const menuPanel = document.querySelector('#main-menu');

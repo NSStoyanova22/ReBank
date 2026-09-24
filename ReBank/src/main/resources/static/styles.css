@@ -717,6 +717,111 @@ dd {
     margin-top: 28px;
 }
 
+.transaction-dropdown {
+    margin-top: 28px;
+    border: 1px solid #d5e2dc;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 12px 26px rgba(23, 56, 47, 0.07);
+    overflow: hidden;
+}
+
+.transaction-dropdown[open] {
+    border-color: #a9cfc0;
+    box-shadow: 0 16px 32px rgba(23, 56, 47, 0.11);
+}
+
+.transaction-dropdown summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 17px;
+    color: #34403d;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+}
+
+.transaction-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.history-summary-icon {
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 8px;
+    background: #e5f3ec;
+    color: #1f6f5b;
+    font-size: 16px;
+}
+
+.history-summary-arrow {
+    margin-left: auto;
+    color: #6b8178;
+    font-size: 18px;
+    transition: transform 160ms ease;
+}
+
+.transaction-dropdown[open] .history-summary-arrow {
+    transform: rotate(180deg);
+}
+
+.transaction-list {
+    display: grid;
+    gap: 1px;
+    padding: 0 12px 12px;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 13px 6px;
+    border-top: 1px solid #e5ece9;
+}
+
+.transaction-details,
+.transaction-values {
+    display: grid;
+    gap: 4px;
+}
+
+.transaction-details strong {
+    color: #26332f;
+    font-size: 13px;
+}
+
+.transaction-details span,
+.transaction-values span {
+    color: #82918b;
+    font-size: 11px;
+}
+
+.transaction-values {
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.transaction-values strong {
+    color: #a33b31;
+    font-size: 13px;
+}
+
+.transaction-item.credit .transaction-values strong {
+    color: #1f6f5b;
+}
+
+.transaction-empty {
+    margin: 0;
+    padding: 14px 6px 3px;
+    color: #82918b;
+    font-size: 13px;
+}
+
 .dashboard-logout button {
     min-height: 40px;
     padding: 8px 0;
