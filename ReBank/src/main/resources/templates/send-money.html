@@ -37,6 +37,22 @@
 
         <section class="send-money-page" aria-labelledby="send-money-title">
             <h1 id="send-money-title">Send money</h1>
+            <p class="send-money-intro">Transfer money securely to another ReBank user.</p>
+
+            <form id="transfer-form" class="send-money-form" th:action="@{/transfer}" method="post">
+                <label for="recipient-username">
+                    Recipient username
+                    <input id="recipient-username" name="recipientUsername" type="text" autocomplete="off" required>
+                </label>
+
+                <label for="transfer-amount">
+                    Amount
+                    <input id="transfer-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+                </label>
+
+                <p id="transfer-message" class="transfer-message" aria-live="polite"></p>
+                <button id="transfer-submit" type="submit">Send money</button>
+            </form>
         </section>
     </div>
 </main>
@@ -62,6 +78,39 @@
             menuPanel.setAttribute('hidden', '');
             menuButton.setAttribute('aria-expanded', 'false');
             menuButton.focus();
+        }
+    });
+
+    const transferForm = document.querySelector('#transfer-form');
+    const transferMessage = document.querySelector('#transfer-message');
+    const transferSubmit = document.querySelector('#transfer-submit');
+
+    transferForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        transferMessage.textContent = 'Sending money...';
+        transferMessage.className = 'transfer-message';
+        transferSubmit.disabled = true;
+
+        try {
+            const response = await fetch(transferForm.action, {
+                method: 'POST',
+                body: new FormData(transferForm)
+            });
+
+            if (response.ok) {
+                transferMessage.textContent = 'Transfer complete.';
+                transferMessage.classList.add('success');
+                transferForm.reset();
+                return;
+            }
+
+            transferMessage.textContent = await response.text();
+            transferMessage.classList.add('error');
+        } catch (error) {
+            transferMessage.textContent = 'Unable to send money right now. Please try again.';
+            transferMessage.classList.add('error');
+        } finally {
+            transferSubmit.disabled = false;
         }
     });
 
