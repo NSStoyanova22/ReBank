@@ -2,6 +2,7 @@ package com.rebank.demo.controller;
 
 import com.rebank.demo.model.Account;
 import com.rebank.demo.repository.AccountRepository;
+import com.rebank.demo.service.BankingService;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.Optional;
@@ -17,10 +18,12 @@ public class AuthController {
 
     private final AccountRepository accounts;
     private final PasswordEncoder passwordEncoder;
+    private final BankingService banking;
 
-    public AuthController(AccountRepository accounts, PasswordEncoder passwordEncoder) {
+    public AuthController(AccountRepository accounts, PasswordEncoder passwordEncoder, BankingService banking) {
         this.accounts = accounts;
         this.passwordEncoder = passwordEncoder;
+        this.banking = banking;
     }
 
     @GetMapping("/register")
@@ -56,6 +59,7 @@ public class AuthController {
                 username.trim(),
                 email.trim().toLowerCase(),
                 passwordEncoder.encode(password)));
+        banking.openBankAccount(account.getId(), "Main account");
         session.setAttribute("accountId", account.getId());
         return "redirect:/";
     }
