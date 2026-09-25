@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class EmployeePortalController {
 
-    private static final String EMPLOYEE_ID = "employeeId";
+    private static final String EMPLOYEE_ACCOUNT_ID = "employeeAccountId";
 
     private final BankEmployeeService employees;
 
@@ -22,7 +22,7 @@ public class EmployeePortalController {
 
     @GetMapping("/employee-login")
     public String loginPage(HttpSession session, Model model) {
-        if (session.getAttribute(EMPLOYEE_ID) != null) {
+        if (session.getAttribute(EMPLOYEE_ACCOUNT_ID) != null) {
             return "redirect:/employee";
         }
         return "employee-login";
@@ -30,13 +30,13 @@ public class EmployeePortalController {
 
     @PostMapping("/employee-login")
     public String login(
-            @RequestParam Long employeeId,
+            @RequestParam String usernameOrEmail,
             @RequestParam String password,
             HttpSession session,
             Model model) {
+        model.addAttribute("usernameOrEmail", usernameOrEmail);
         try {
-            employees.authenticate(employeeId, password);
-            session.setAttribute(EMPLOYEE_ID, employeeId);
+            session.setAttribute(EMPLOYEE_ACCOUNT_ID, employees.authenticate(usernameOrEmail, password).getId());
             return "redirect:/employee";
         } catch (IllegalArgumentException ex) {
             model.addAttribute("error", ex.getMessage());
@@ -46,17 +46,17 @@ public class EmployeePortalController {
 
     @GetMapping("/employee")
     public String dashboard(HttpSession session, Model model) {
-        Long employeeId = employeeId(session);
-        if (employeeId == null) {
+        Long employeeAccountId = employeeAccountId(session);
+        if (employeeAccountId == null) {
             return "redirect:/employee-login";
         }
 
         try {
-            model.addAttribute("employee", employees.getEmployeeById(employeeId));
+            model.addAttribute("employee", employees.getEmployeeById(employeeAccountId));
             model.addAttribute("transactions", employees.getAllTransactions());
             return "employee";
         } catch (IllegalArgumentException ex) {
-            session.removeAttribute(EMPLOYEE_ID);
+            session.removeAttribute(EMPLOYEE_ACCOUNT_ID);
             return "redirect:/employee-login";
         }
     }
@@ -66,7 +66,8 @@ public class EmployeePortalController {
             @PathVariable Long transactionId,
             HttpSession session,
             Model model) {
-        if (employeeId(session) == null) {
+        Long employeeAccountId = employeeAccountId(session);
+        if (employeeAccountId == null) {
             return "redirect:/employee-login";
         }
 
@@ -75,7 +76,7 @@ public class EmployeePortalController {
             return "redirect:/employee";
         } catch (IllegalArgumentException ex) {
             model.addAttribute("error", ex.getMessage());
-            model.addAttribute("employee", employees.getEmployeeById(employeeId(session)));
+            model.addAttribute("employee", employees.getEmployeeById(employeeAccountId));
             model.addAttribute("transactions", employees.getAllTransactions());
             return "employee";
         }
@@ -83,12 +84,12 @@ public class EmployeePortalController {
 
     @PostMapping("/employee/logout")
     public String logout(HttpSession session) {
-        session.removeAttribute(EMPLOYEE_ID);
+        session.removeAttribute(EMPLOYEE_ACCOUNT_ID);
         return "redirect:/employee-login";
     }
 
-    private Long employeeId(HttpSession session) {
-        Object employeeId = session.getAttribute(EMPLOYEE_ID);
-        return employeeId instanceof Long ? (Long) employeeId : null;
+    private Long employeeAccountId(HttpSession session) {
+        Object employeeAccountId = session.getAttribute(EMPLOYEE_ACCOUNT_ID);
+        return employeeAccountId instanceof Long ? (Long) employeeAccountId : null;
     }
 }

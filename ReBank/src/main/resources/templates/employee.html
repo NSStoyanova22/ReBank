@@ -33,7 +33,7 @@
                     <p class="eyebrow">LEDGER</p>
                     <h2 id="transaction-list-title">All transactions</h2>
                 </div>
-                <span class="employee-badge" th:text="${employee.name}">Employee</span>
+                <span class="employee-badge" th:text="${employee.username + ' · ' + employee.employeeRole + ' · ' + employee.employeeBank.name}">Employee</span>
             </div>
 
             <p th:if="${#lists.isEmpty(transactions)}" class="transaction-empty">No transactions found.</p>

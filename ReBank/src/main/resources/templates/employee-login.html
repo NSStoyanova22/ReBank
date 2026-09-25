@@ -15,8 +15,8 @@
         <p class="intro">Use your employee credentials to manage account activity.</p>
         <p th:if="${error}" class="error" th:text="${error}"></p>
         <form th:action="@{/employee-login}" method="post">
-            <label for="employee-id">Employee ID</label>
-            <input id="employee-id" name="employeeId" type="number" min="1" required autofocus>
+            <label for="username-or-email">Username or email</label>
+            <input id="username-or-email" name="usernameOrEmail" type="text" autocomplete="username" th:value="${usernameOrEmail}" required autofocus>
             <label for="employee-password">Password</label>
             <input id="employee-password" name="password" type="password" autocomplete="current-password" required>
             <button type="submit">Open employee console</button>

@@ -1,25 +1,26 @@
 package com.rebank.demo.service;
 
+import com.rebank.demo.model.Account;
+import com.rebank.demo.model.Account.AccountType;
 import com.rebank.demo.model.Bank;
 import com.rebank.demo.model.BankAccount;
-import com.rebank.demo.model.BankEmployee;
 import com.rebank.demo.model.BankTransaction;
 import com.rebank.demo.model.Client;
+import com.rebank.demo.repository.AccountRepository;
 import com.rebank.demo.repository.BankAccountRepository;
-import com.rebank.demo.repository.BankEmployeeRepository;
 import com.rebank.demo.repository.BankRepository;
 import com.rebank.demo.repository.BankTransactionRepository;
 import com.rebank.demo.repository.ClientRepository;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
 
 @Service
 public class BankEmployeeService {
 
-    private final BankEmployeeRepository bankEmployees;
+    private final AccountRepository accounts;
     private final BankRepository banks;
     private final ClientRepository clients;
     private final BankAccountRepository bankAccounts;
@@ -27,13 +28,13 @@ public class BankEmployeeService {
     private final PasswordEncoder passwordEncoder;
 
     public BankEmployeeService(
-            BankEmployeeRepository bankEmployees,
+            AccountRepository accounts,
             BankRepository banks,
             ClientRepository clients,
             BankAccountRepository bankAccounts,
             BankTransactionRepository transactions,
             PasswordEncoder passwordEncoder) {
-        this.bankEmployees = bankEmployees;
+        this.accounts = accounts;
         this.banks = banks;
         this.clients = clients;
         this.bankAccounts = bankAccounts;
@@ -42,77 +43,69 @@ public class BankEmployeeService {
     }
 
     @Transactional
-    public BankEmployee createEmployee(Long bankId, String name, String role) {
-        if (isBlank(name)) {
-            throw new IllegalArgumentException("Employee name is required.");
-        }
-        if (isBlank(role)) {
-            throw new IllegalArgumentException("Employee role is required.");
-        }
-        
-        Bank bank = banks.findById(bankId)
-                .orElseThrow(() -> new IllegalArgumentException("Bank not found."));
-        
-        String employeeName = name.trim();
-        String employeeRole = role.trim();
-        
-        if (employeeName.length() > 120) {
-            throw new IllegalArgumentException("Employee name is too long.");
-        }
-        if (employeeRole.length() > 80) {
-            throw new IllegalArgumentException("Employee role is too long.");
-        }
-        
-        return bankEmployees.save(new BankEmployee(bank, employeeName, employeeRole));
-    }
-
-    @Transactional
-    public BankEmployee createEmployee(Long bankId, String name, String role, String password) {
+    public Account createEmployee(Long bankId, String username, String email, String role, String password) {
         validatePassword(password);
-        if (isBlank(name)) {
-            throw new IllegalArgumentException("Employee name is required.");
+        if (isBlank(username)) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+        if (isBlank(email)) {
+            throw new IllegalArgumentException("Email is required.");
         }
         if (isBlank(role)) {
             throw new IllegalArgumentException("Employee role is required.");
         }
 
-        Bank bank = banks.findById(bankId)
-                .orElseThrow(() -> new IllegalArgumentException("Bank not found."));
-        String employeeName = name.trim();
+        String employeeUsername = username.trim();
+        String employeeEmail = email.trim().toLowerCase();
         String employeeRole = role.trim();
-        if (employeeName.length() > 120) {
-            throw new IllegalArgumentException("Employee name is too long.");
+        if (employeeUsername.length() > 50) {
+            throw new IllegalArgumentException("Username is too long.");
+        }
+        if (employeeEmail.length() > 120) {
+            throw new IllegalArgumentException("Email is too long.");
         }
         if (employeeRole.length() > 80) {
             throw new IllegalArgumentException("Employee role is too long.");
         }
+        if (accounts.existsByUsernameIgnoreCase(employeeUsername)) {
+            throw new IllegalArgumentException("Username is already taken.");
+        }
+        if (accounts.existsByEmailIgnoreCase(employeeEmail)) {
+            throw new IllegalArgumentException("Email is already registered.");
+        }
 
-        return bankEmployees.save(new BankEmployee(
+        Bank bank = banks.findById(bankId)
+                .orElseThrow(() -> new IllegalArgumentException("Bank not found."));
+        return accounts.save(new Account(
+                employeeUsername,
+                employeeEmail,
+                passwordEncoder.encode(password),
                 bank,
-                employeeName,
-                employeeRole,
-                passwordEncoder.encode(password)));
+                employeeRole));
     }
 
     @Transactional(readOnly = true)
-    public BankEmployee authenticate(Long employeeId, String password) {
-        BankEmployee employee = getEmployeeById(employeeId);
-        if (employee.getPasswordHash() == null
-                || isBlank(password)
-                || !passwordEncoder.matches(password, employee.getPasswordHash())) {
+    public Account authenticate(String usernameOrEmail, String password) {
+        if (isBlank(usernameOrEmail) || isBlank(password)) {
+            throw new IllegalArgumentException("Invalid employee credentials.");
+        }
+        Account employee = findAccount(usernameOrEmail.trim())
+                .filter(account -> account.getAccountType() == AccountType.EMPLOYEE)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid employee credentials."));
+        if (!passwordEncoder.matches(password, employee.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid employee credentials.");
         }
         return employee;
     }
 
     @Transactional(readOnly = true)
-    public List<BankEmployee> getAllEmployees() {
-        return bankEmployees.findAll();
+    public List<Account> getAllEmployees() {
+        return accounts.findByAccountTypeOrderByCreatedAtAscIdAsc(AccountType.EMPLOYEE);
     }
 
     @Transactional(readOnly = true)
-    public BankEmployee getEmployeeById(Long id) {
-        return bankEmployees.findById(id)
+    public Account getEmployeeById(Long id) {
+        return accounts.findByIdAndAccountType(id, AccountType.EMPLOYEE)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found."));
     }
 
@@ -135,10 +128,7 @@ public class BankEmployeeService {
 
     @Transactional
     public void deleteEmployee(Long id) {
-        if (!bankEmployees.existsById(id)) {
-            throw new IllegalArgumentException("Employee not found.");
-        }
-        bankEmployees.deleteById(id);
+        accounts.delete(getEmployeeById(id));
     }
 
     @Transactional(readOnly = true)
@@ -158,6 +148,13 @@ public class BankEmployeeService {
         if (isBlank(password) || password.length() < 6) {
             throw new IllegalArgumentException("Employee password must be at least 6 characters.");
         }
+    }
+
+    private Optional<Account> findAccount(String usernameOrEmail) {
+        if (usernameOrEmail.contains("@")) {
+            return accounts.findByEmailIgnoreCase(usernameOrEmail);
+        }
+        return accounts.findByUsernameIgnoreCase(usernameOrEmail);
     }
 
     private boolean isBlank(String value) {

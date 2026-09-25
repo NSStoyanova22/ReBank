@@ -1,6 +1,7 @@
 package com.rebank.demo.service;
 
 import com.rebank.demo.model.Account;
+import com.rebank.demo.model.Account.AccountType;
 import com.rebank.demo.model.Bank;
 import com.rebank.demo.model.BankAccount;
 import com.rebank.demo.model.BankTransaction;
@@ -57,7 +58,7 @@ public class BankingService {
 
     @Transactional(readOnly = true)
     public List<BankAccount> bankAccountsFor(Long accountId) {
-        requireAccount(accountId);
+        requireClientAccount(accountId);
         return bankAccounts.findByClientAccountIdOrderByCreatedAtAscIdAsc(accountId);
     }
 
@@ -162,7 +163,7 @@ public class BankingService {
     private Client clientFor(Long accountId) {
         return clients.findByAccountId(accountId)
                 .orElseGet(() -> {
-                    Account account = requireAccount(accountId);
+                    Account account = requireClientAccount(accountId);
                     return clients.save(new Client(account, account.getUsername()));
                 });
     }
@@ -177,6 +178,14 @@ public class BankingService {
                 .orElseThrow(() -> new IllegalArgumentException("Account was not found."));
     }
 
+    private Account requireClientAccount(Long accountId) {
+        Account account = requireAccount(accountId);
+        if (account.getAccountType() != AccountType.CLIENT) {
+            throw new IllegalArgumentException("Employee accounts cannot use customer banking.");
+        }
+        return account;
+    }
+
     private Long ownedBankAccountId(Long accountId, Long bankAccountId) {
         if (bankAccountId == null) {
             return bankAccounts.findFirstByClientAccountIdOrderByCreatedAtAscIdAsc(accountId)
@@ -189,7 +198,7 @@ public class BankingService {
     }
 
     private Optional<Long> existingOwnedBankAccountId(Long accountId, Long bankAccountId) {
-        requireAccount(accountId);
+        requireClientAccount(accountId);
         if (bankAccountId == null) {
             return bankAccounts.findFirstByClientAccountIdOrderByCreatedAtAscIdAsc(accountId)
                     .map(BankAccount::getId);

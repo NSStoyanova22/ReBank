@@ -1,14 +1,13 @@
 package com.rebank.demo.controller;
 
+import com.rebank.demo.model.Account;
 import com.rebank.demo.model.BankAccount;
-import com.rebank.demo.model.BankEmployee;
 import com.rebank.demo.model.Client;
 import com.rebank.demo.service.BankEmployeeService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -24,11 +23,12 @@ public class BankEmployeeController {
     @ResponseBody
     public ResponseEntity<String> createEmployee(
             @RequestParam Long bankId,
-            @RequestParam String name,
+            @RequestParam String username,
+            @RequestParam String email,
             @RequestParam String role,
             @RequestParam String password) {
         try {
-            BankEmployee employee = bankEmployeeService.createEmployee(bankId, name, role, password);
+            Account employee = bankEmployeeService.createEmployee(bankId, username, email, role, password);
             return ResponseEntity.ok("Employee created with ID: " + employee.getId());
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -38,20 +38,22 @@ public class BankEmployeeController {
     @GetMapping("/employees")
     @ResponseBody
     public ResponseEntity<String> getAllEmployees() {
-        List<BankEmployee> employees = bankEmployeeService.getAllEmployees();
+        List<Account> employees = bankEmployeeService.getAllEmployees();
         if (employees.isEmpty()) {
             return ResponseEntity.ok("No employees found.");
         }
         StringBuilder response = new StringBuilder();
-        for (BankEmployee employee : employees) {
+        for (Account employee : employees) {
             response.append("ID: ")
                     .append(employee.getId())
-                    .append(" | Name: ")
-                    .append(employee.getName())
+                    .append(" | Username: ")
+                    .append(employee.getUsername())
+                    .append(" | Email: ")
+                    .append(employee.getEmail())
                     .append(" | Role: ")
-                    .append(employee.getRole())
+                    .append(employee.getEmployeeRole())
                     .append(" | Bank: ")
-                    .append(employee.getBank().getName())
+                    .append(employee.getEmployeeBank().getName())
                     .append(System.lineSeparator());
         }
         return ResponseEntity.ok(response.toString());
@@ -61,12 +63,13 @@ public class BankEmployeeController {
     @ResponseBody
     public ResponseEntity<String> getEmployee(@PathVariable Long id) {
         try {
-            BankEmployee employee = bankEmployeeService.getEmployeeById(id);
+            Account employee = bankEmployeeService.getEmployeeById(id);
             return ResponseEntity.ok(
                     "ID: " + employee.getId() +
-                    " | Name: " + employee.getName() +
-                    " | Role: " + employee.getRole() +
-                    " | Bank: " + employee.getBank().getName());
+                    " | Username: " + employee.getUsername() +
+                    " | Email: " + employee.getEmail() +
+                    " | Role: " + employee.getEmployeeRole() +
+                    " | Bank: " + employee.getEmployeeBank().getName());
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
