@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.rebank.demo.model.Account;
+import com.rebank.demo.model.Account.AccountType;
 import com.rebank.demo.repository.AccountRepository;
 import com.rebank.demo.repository.BankAccountRepository;
 import com.rebank.demo.repository.BankRepository;
@@ -65,6 +66,7 @@ class AuthFlowTests {
         HttpSession session = result.getRequest().getSession(false);
 
         org.junit.jupiter.api.Assertions.assertEquals("vini@example.com", account.getEmail());
+        org.junit.jupiter.api.Assertions.assertEquals(AccountType.CLIENT, account.getAccountType());
         org.junit.jupiter.api.Assertions.assertTrue(passwordEncoder.matches("secret123", account.getPasswordHash()));
         org.junit.jupiter.api.Assertions.assertEquals(account.getId(), Objects.requireNonNull(session).getAttribute("accountId"));
         org.junit.jupiter.api.Assertions.assertEquals(1, bankAccounts.findByClientAccountIdOrderByCreatedAtAscIdAsc(account.getId()).size());

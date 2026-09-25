@@ -8,12 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.rebank.demo.model.Account;
+import com.rebank.demo.model.Account.AccountType;
 import com.rebank.demo.model.Bank;
-import com.rebank.demo.model.BankEmployee;
 import com.rebank.demo.model.BankTransaction;
 import com.rebank.demo.repository.AccountRepository;
 import com.rebank.demo.repository.BankAccountRepository;
-import com.rebank.demo.repository.BankEmployeeRepository;
 import com.rebank.demo.repository.BankRepository;
 import com.rebank.demo.repository.BankTransactionRepository;
 import com.rebank.demo.repository.ClientRepository;
@@ -44,9 +43,6 @@ class EmployeeFlowTests {
     private BankAccountRepository bankAccounts;
 
     @Autowired
-    private BankEmployeeRepository employees;
-
-    @Autowired
     private BankRepository banks;
 
     @Autowired
@@ -64,7 +60,6 @@ class EmployeeFlowTests {
     @BeforeEach
     void resetDatabase() {
         transactions.deleteAll();
-        employees.deleteAll();
         bankAccounts.deleteAll();
         clients.deleteAll();
         accounts.deleteAll();
@@ -85,7 +80,12 @@ class EmployeeFlowTests {
     @Test
     void employeeCanLogInViewConsoleAndRemoveTransaction() throws Exception {
         Bank bank = banks.save(new Bank("STAFF", "Staff Bank"));
-        BankEmployee employee = employeeService.createEmployee(bank.getId(), "Jordan Staff", "Operations", "staffpass");
+        Account employee = employeeService.createEmployee(
+                bank.getId(),
+                "jordan",
+                "jordan@example.com",
+                "Operations",
+                "staffpass");
         Account customer = accounts.save(new Account("customer", "customer@example.com", passwordEncoder.encode("secret123")));
         MockHttpSession customerSession = new MockHttpSession();
         customerSession.setAttribute("accountId", customer.getId());
@@ -95,7 +95,7 @@ class EmployeeFlowTests {
         BankTransaction transaction = transactions.findAll().get(0);
 
         MvcResult login = mockMvc.perform(post("/employee-login")
-                        .param("employeeId", employee.getId().toString())
+                        .param("usernameOrEmail", "jordan")
                         .param("password", "staffpass"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/employee"))
@@ -113,5 +113,45 @@ class EmployeeFlowTests {
                 .andExpect(redirectedUrl("/employee"));
 
         assertEquals(0, transactions.count());
+    }
+
+    @Test
+    void employeeAccountCannotUseCustomerBanking() throws Exception {
+        Bank bank = banks.save(new Bank("STAFF", "Staff Bank"));
+        Account employee = employeeService.createEmployee(
+                bank.getId(),
+                "jordan",
+                "jordan@example.com",
+                "Operations",
+                "staffpass");
+        MockHttpSession employeeSession = new MockHttpSession();
+        employeeSession.setAttribute("accountId", employee.getId());
+
+        mockMvc.perform(post("/deposit").session(employeeSession).param("amount", "25.00"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Employee accounts cannot use customer banking."));
+
+        assertEquals(0, clients.count());
+        assertEquals(AccountType.EMPLOYEE, accounts.findById(employee.getId()).orElseThrow().getAccountType());
+    }
+
+    @Test
+    void adminEmployeeListOnlyReturnsEmployeeAccounts() throws Exception {
+        Bank bank = banks.save(new Bank("STAFF", "Staff Bank"));
+        accounts.save(new Account("customer", "customer@example.com", passwordEncoder.encode("secret123")));
+
+        mockMvc.perform(post("/admin/employees")
+                        .param("bankId", bank.getId().toString())
+                        .param("username", "jordan")
+                        .param("email", "jordan@example.com")
+                        .param("role", "Operations")
+                        .param("password", "staffpass"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Employee created with ID: ")));
+
+        mockMvc.perform(get("/admin/employees"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Username: jordan")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("customer"))));
     }
 }
