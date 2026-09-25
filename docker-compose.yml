@@ -1,6 +1,7 @@
 services:
   app:
     image: ghcr.io/nsstoyanova22/rebank:latest
+    pull_policy: always
     container_name: rebank-app
     restart: always
     env_file: .env
